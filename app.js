@@ -1,46 +1,30 @@
+// BASE SETUP
+// ==============================================
+
 var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+var app     = express();
+var port    =   process.env.PORT || 8080;
 
-var index = require('./routes/index');
-var users = require('./routes/users');
+var user = require('./routes/users');
 
-var app = express();
+// get an instance of router
+var router = express.Router();
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+// route middleware that will happen on every request
+router.use(function(req, res, next) {
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+    // log each request to the console
+    console.log(req.method, req.url);
 
-app.use('/', index);
-app.use('/users', users);
-
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+    // continue doing what we were doing and go to the route
+    next();
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+// apply the routes to our application
+app.use('/', user);
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
 
-module.exports = app;
+// START THE SERVER
+// ==============================================
+app.listen(port);
+console.log('Magic happens on port ' + port);
