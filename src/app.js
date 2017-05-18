@@ -1,8 +1,10 @@
 var express = require('express');
-var app     = express();
-var port    =   process.env.PORT || 8080;
+var app = express();
+var port = process.env.PORT || 8080;
 
 var user = require('./routes/users');
+var hvacs = require('./routes/hvacs');
+var clients = require('./routes/clients');
 
 // get an instance of router
 var router = express.Router();
@@ -19,6 +21,12 @@ router.use(function(req, res, next) {
 
 // apply the routes to our application
 app.use('/', user);
+app.use('/hvacs', hvacs);
+app.use('/clients', clients);
+
+var bodyParser = require('body-parser');
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 
 // START THE SERVER

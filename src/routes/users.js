@@ -1,15 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-/**
- * Database connection
- */
-var mysql      = require('mysql');
-var connection = mysql.createConnection({
-    host     : 'lampdev.ecam.fr',
-    user     : 'ats_08',
-    password : 'QTbqp94'
-});
+var connection = require('../utils/dbconnection');
 
 // home page route (http://localhost:8080)
 router.get('/', function(req, res) {
