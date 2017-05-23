@@ -12,7 +12,7 @@ router.get('/', function(req, res) {
 router.get('/about', function(req, res) {
     var result = {};
     connection.connect();
-    connection.query('SELECT * from ats_08.LIEU', function(err, rows, fields) {
+    connection.query('SELECT * from LIEU', function(err, rows, fields) {
         if (err) throw err;
         res.json(rows);
     });
