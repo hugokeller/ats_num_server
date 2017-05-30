@@ -8,7 +8,7 @@ var connection = require('../utils/dbconnection');
  */
 router.get('/:id', function(req, res) {
     var query = 'SELECT * ' +
-        'FROM ats_08.CLIENT ' +
+        'FROM CLIENT ' +
         'WHERE idClient=' + req.params.id;
     connection.connect();
     connection.query(query, function(err, rows, fields) {
