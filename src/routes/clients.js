@@ -22,11 +22,23 @@ router.get('/:id', function(req, res) {
  *
  */
 
+var bodyParser = require('body-parser');
+bodyParser = bodyParser.json();
+var cors = require('cors');
+var corsOptions = {
+    origin : '*',
+    headers : 'Content-Type'
+};
 var auth = require('../utils/auth');
-router.post('/auth', function(req, res) {
+router.post('/auth', bodyParser, cors(corsOptions), function(req, res) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With, Accept');
     var login = req.body.email;
     var password = req.body.password;
-    res.json(auth.token(login, password))
+    console.log(req.body);
+    // res.json(auth.token(login, password))
+    res.json(req.body)
 });
 
 module.exports = router;

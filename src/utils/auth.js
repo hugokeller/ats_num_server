@@ -3,6 +3,12 @@ var jwt = require('jsonwebtoken');
 
 var connection = require('../utils/dbconnection');
 
+// var testClient = {
+//     idClient : 1,
+//     login : 'hugo',
+//     password : 'hugo'
+// };
+
 var compareAuthInformation = function (login, password){
     var query = 'SELECT * ' +
         'FROM ats_08.USER ' +
@@ -36,6 +42,8 @@ var auth = {
     token : function(login, password){
         if (compareAuthInformation(login, password)){
             return getToken();
+        }else {
+            return 'false';
         }
     }
 };
