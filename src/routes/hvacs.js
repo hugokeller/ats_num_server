@@ -11,7 +11,10 @@ router.get('/allhvacs', function(req, res) {
         'FROM HVAC';
     connection.connect();
     connection.query(query, function(err, rows, fields) {
-        if (err) throw err;
+        if (err){
+            res.send({error:'wrong request', code:0, verb:err});
+            return null;
+        }
         res.json(rows);
     });
     connection.end();
@@ -33,23 +36,22 @@ router.get('/:id', function(req, res) {
 });
 
 /**
- * Get HVACs for a client
+ * Get HVACs readable by a client
  */
-router.post('/', function(req, res){
+router.post('/read', function(req, res){
     var idClient = req.body.idClient;
-    var idDroit = req.body.idDroit;
     var query = 'SELECT * ' +
         'FROM HVAC ' +
         'INNER JOIN AUTORISATION ' +
             'ON HVAC.idHvac = AUTORISATION.idHvac ' +
-        'WHERE AUTORISATION.idClient = ' + idClient +
-            ' AND AUTORISATION.idDroit = ' + idDroit;
-    connection.connect();
+        'WHERE AUTORISATION.idClient = ' + idClient;
     connection.query(query, function(err, rows, fields) {
-        if (err) throw err;
-        res.json(rows);
+        if (err){
+            res.send({error:'wrong request', code:0, verb:err});
+            return null;
+        }
+        res.send(rows);
     });
-    connection.end();
 });
 
 module.exports = router;
