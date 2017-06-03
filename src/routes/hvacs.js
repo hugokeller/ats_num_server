@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
+var jwt = require('jsonwebtoken');
 var connection = require('../utils/dbconnection');
 
 /**
@@ -40,18 +41,48 @@ router.get('/:id', function(req, res) {
  */
 router.post('/read', function(req, res){
     var idClient = req.body.idClient;
-    var query = 'SELECT * ' +
+    var token = req.headers['authorization'];
+    if (token) {
+        jwt.verify(token, 'atsnumecam', function(err, decoded) {
+            if (err) {
+                res.send({ success: false, message: 'Failed to authenticate token.' });
+                return null;
+            } else {
+                req.decoded = decoded;
+                res.send([
+                    {
+                        idHvac:1,
+                        sNomHvac: 'blabla',
+                        sMatricule: 'GJFKJFL'
+                    },{
+                        idHvac:1,
+                        sNomHvac: 'dzpldzpldzpldpz',
+                        sMatricule: 'KLNDZL'
+                    }
+                ]);
+            }
+        });
+    } else {
+        return res.status(403).send({
+            success: false,
+            message: 'No token provided.'
+        });
+
+    }
+var query = 'SELECT * ' +
         'FROM HVAC ' +
         'INNER JOIN AUTORISATION ' +
             'ON HVAC.idHvac = AUTORISATION.idHvac ' +
         'WHERE AUTORISATION.idClient = ' + idClient;
-    connection.query(query, function(err, rows, fields) {
+ /*   connection.query(query, function(err, rows, fields) {
         if (err){
             res.send({error:'wrong request', code:0, verb:err});
             return null;
         }
         res.send(rows);
     });
+  */
+
 });
 
 module.exports = router;

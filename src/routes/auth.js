@@ -12,7 +12,13 @@ var connection = require('../utils/dbconnection');
 router.post('/', function(req, res) {
     var login = req.body.email;
     var password = req.body.password;
-    auth(login,password, res);
+    //auth(login,password, res);
+    if ('hugo' === password){
+        var token = jwt.sign({login: login}, secret);
+        res.send({token: token, idUser:1});
+    }else {
+        res.send({error: 'bad credentials', code:2})
+    }
 });
 
 
