@@ -85,4 +85,18 @@ var query = 'SELECT * ' +
 
 });
 
+/**
+ * Create new hvac
+ */
+router.post('/', function(req, res) {
+    var query = 'INSERT INTO ';
+    connection.query(query, function(error, result, fields) {
+        if (error){
+            res.send({error:'wrong request', code:0, verb:error});
+            return null;
+        }
+        res.send({status: 'OK', userId:result});
+    })
+});
+
 module.exports = router;

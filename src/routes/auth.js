@@ -3,6 +3,7 @@ var router = express.Router();
 
 var secret = 'atsnumecam';
 var jwt = require('jsonwebtoken');
+var sha256 = require('sha256');
 var connection = require('../utils/dbconnection');
 
 /**
@@ -13,7 +14,7 @@ router.post('/', function(req, res) {
     var login = req.body.email;
     var password = req.body.password;
     //auth(login,password, res);
-    if ('hugo' === password){
+    if (sha256('hugo') === password){
         var token = jwt.sign({login: login}, secret);
         res.send({token: token, idUser:1});
     }else {
