@@ -10,7 +10,6 @@ var connection = require('../utils/dbconnection');
 router.get('/allhvacs', function(req, res) {
     var query = 'SELECT * ' +
         'FROM HVAC';
-    connection.connect();
     connection.query(query, function(err, rows, fields) {
         if (err){
             res.send({error:'wrong request', code:0, verb:err});
@@ -18,7 +17,6 @@ router.get('/allhvacs', function(req, res) {
         }
         res.json(rows);
     });
-    connection.end();
 });
 
 /**
@@ -28,12 +26,10 @@ router.get('/:id', function(req, res) {
     var query = 'SELECT * ' +
         'FROM HVAC ' +
         'WHERE idHvac=' + req.params.id;
-    connection.connect();
     connection.query(query, function(err, rows, fields) {
         if (err) throw err;
         res.json(rows[0]);
     });
-    connection.end();
 });
 
 /**
@@ -41,61 +37,64 @@ router.get('/:id', function(req, res) {
  */
 router.post('/read', function(req, res){
     var idClient = req.body.idClient;
-    var token = req.headers['authorization'];
-    if (token) {
-        jwt.verify(token, 'atsnumecam', function(err, decoded) {
-            if (err) {
-                res.send({ success: false, message: 'Failed to authenticate token.' });
+    var query = 'SELECT * ' +
+            'FROM HVAC ' +
+            'INNER JOIN AUTORISATION ' +
+                'ON HVAC.idHvac = AUTORISATION.idHvac ' +
+            'WHERE AUTORISATION.idClient = ' + idClient;
+    connection.query(query, function(err, rows, fields) {
+            if (err){
+                res.send({error:'wrong request', code:0, verb:err});
                 return null;
-            } else {
-                req.decoded = decoded;
-                res.send([
-                    {
-                        idHvac:1,
-                        sNomHvac: 'blabla',
-                        sMatricule: 'GJFKJFL'
-                    },{
-                        idHvac:1,
-                        sNomHvac: 'dzpldzpldzpldpz',
-                        sMatricule: 'KLNDZL'
+            }
+            var token = req.headers['authorization'];
+            if (token) {
+                jwt.verify(token, 'atsnumecam', function(err, decoded) {
+                    if (err) {
+                        res.send({ success: false, message: 'Failed to authenticate token.' });
+                        return null;
+                    } else {
+                        req.decoded = decoded;
+                        res.send(rows);
                     }
-                ]);
+                });
+            } else {
+                return res.status(403).send({
+                    success: false,
+                    message: 'No token provided.'
+                });
+
             }
         });
-    } else {
-        return res.status(403).send({
-            success: false,
-            message: 'No token provided.'
-        });
-
-    }
-var query = 'SELECT * ' +
-        'FROM HVAC ' +
-        'INNER JOIN AUTORISATION ' +
-            'ON HVAC.idHvac = AUTORISATION.idHvac ' +
-        'WHERE AUTORISATION.idClient = ' + idClient;
- /*   connection.query(query, function(err, rows, fields) {
-        if (err){
-            res.send({error:'wrong request', code:0, verb:err});
-            return null;
-        }
-        res.send(rows);
-    });
-  */
-
 });
 
 /**
  * Create new hvac
  */
 router.post('/', function(req, res) {
-    var query = 'INSERT INTO ';
-    connection.query(query, function(error, result, fields) {
+    var sMatricule = req.body.sMatricule.value;
+    var sNomHvac = req.body.sNomHvac.value;
+    var idClient = req.body.idClient;
+    console.log(sNomHvac, sMatricule);
+    var queryHvac = "INSERT INTO `HVAC` " +
+        "(`sMatricule`, `sNomHvac`, `idLieu`) " +
+        "VALUES ('" + sMatricule + "', '" + sNomHvac + "', '1')";
+    connection.query(queryHvac, function(error, result, fields) {
         if (error){
-            res.send({error:'wrong request', code:0, verb:error});
+            res.send({error:'wrong request 1 ', code:0, verb:error});
             return null;
         }
-        res.send({status: 'OK', userId:result});
+        var idHvac = result.insertId;
+        var queryAuth = "INSERT INTO `AUTORISATION` " +
+            "(`idClient`, `idHvac`, `idDroit`) " +
+            "VALUES ('" + idClient + "', '" + idHvac + "', '1')";
+        connection.query(queryAuth, function(error, result, fields) {
+            if (error){
+                res.send({error:'wrong request 2', code:0, verb:error});
+                return null;
+            }
+            res.send({status: 'OK', userId:result});
+        });
     })
 });
 

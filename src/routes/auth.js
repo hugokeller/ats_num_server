@@ -3,7 +3,6 @@ var router = express.Router();
 
 var secret = 'atsnumecam';
 var jwt = require('jsonwebtoken');
-var sha256 = require('sha256');
 var connection = require('../utils/dbconnection');
 
 /**
@@ -13,13 +12,7 @@ var connection = require('../utils/dbconnection');
 router.post('/', function(req, res) {
     var login = req.body.email;
     var password = req.body.password;
-    //auth(login,password, res);
-    if (sha256('hugo') === password){
-        var token = jwt.sign({login: login}, secret);
-        res.send({token: token, idUser:1});
-    }else {
-        res.send({error: 'bad credentials', code:2})
-    }
+    auth(login,password, res);
 });
 
 
@@ -29,7 +22,6 @@ var auth = function(login, password, res){
         'FROM ats_08.CLIENT ' +
         'WHERE sEmailClient=\"' + login + '\"';
     var user = {};
-    connection.connect();
     connection.query(query, function(err, rows, fields) {
         if (err){
             res.send({error:'wrong request', code:0, verb:err});
@@ -40,16 +32,17 @@ var auth = function(login, password, res){
             return null;
         }
         user = rows[0];
-        connection.end();
         if (user.sPassword === password){
             var token = jwt.sign({login: login}, secret);
             res.send({token: token, idUser:user.idClient});
         }else {
-            res.send({error: 'bad credentials', code:2})
+            res.send({error: 'bad credentials', code:2});
+            return null;
         }
         console.log(token);
         return token;
-    })
+    });
+
 };
 
 module.exports = router;
